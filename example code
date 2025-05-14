@@ -1,0 +1,271 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 5  // Define the maximum size of the queue
+
+// Global variables for simple and circular queues
+int queue[MAX], front = -1, rear = -1;
+int circularQueue[MAX], cFront = -1, cRear = -1;
+
+// Structure for Priority Queue
+typedef struct {
+    int data;
+    int priority;
+} PriorityQueue;
+
+PriorityQueue pQueue[MAX];
+int pFront = -1, pRear = -1;
+
+// Function prototypes
+void enqueue();
+void dequeue();
+void peek();
+void display();
+int isFull();
+int isEmpty();
+
+void circularEnqueue();
+void circularDequeue();
+void circularDisplay();
+
+void insertFront(int);
+void insertRear(int);
+void deleteFront();
+void deleteRear();
+void dequeDisplay();
+
+void priorityEnqueue(int, int);
+void priorityDequeue();
+void priorityDisplay();
+
+int main() {
+    int choice;
+    while (1) {
+        printf("\nQueue Operations:\n");
+        printf("1. Simple Queue (Enqueue, Dequeue, Peek, Display)\n");
+        printf("2. Circular Queue (Enqueue, Dequeue, Display)\n");
+        printf("3. Deque (Insert/Delete at Front/Rear)\n");
+        printf("4. Priority Queue (Enqueue, Dequeue, Display)\n");
+        printf("0. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                enqueue();
+                dequeue();
+                peek();
+                display();
+                break;
+            case 2:
+                circularEnqueue();
+                circularDequeue();
+                circularDisplay();
+                break;
+            case 3:
+                insertFront(10); insertRear(20);
+                deleteFront(); deleteRear();
+                dequeDisplay();
+                break;
+            case 4:
+                priorityEnqueue(30, 1); priorityEnqueue(40, 2);
+                priorityDequeue();
+                priorityDisplay();
+                break;
+            case 0:
+                exit(0);
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+    return 0;
+}
+
+// Simple Queue Operations
+void enqueue() {
+    if (isFull()) {
+        printf("Queue Overflow!\n");
+        return;
+    }
+    int val;
+    printf("Enter value to enqueue: ");
+    scanf("%d", &val);
+    if (isEmpty()) {
+        front = rear = 0;
+    } else {
+        rear++;
+    }
+    queue[rear] = val;
+}
+
+void dequeue() {
+    if (isEmpty()) {
+        printf("Queue Underflow!\n");
+        return;
+    }
+    printf("Dequeued: %d\n", queue[front]);
+    if (front == rear) {
+        front = rear = -1;
+    } else {
+        front++;
+    }
+}
+
+void peek() {
+    if (isEmpty()) {
+        printf("Queue is empty!\n");
+        return;
+    }
+    printf("Front element: %d\n", queue[front]);
+}
+
+int isFull() {
+    return rear == MAX - 1;
+}
+
+int isEmpty() {
+    return front == -1;
+}
+
+void display() {
+    if (isEmpty()) {
+        printf("Queue is empty!\n");
+        return;
+    }
+    printf("Queue elements: ");
+    for (int i = front; i <= rear; i++) {
+        printf("%d ", queue[i]);
+    }
+    printf("\n");
+}
+
+// Circular Queue Operations
+void circularEnqueue() {
+    if ((cRear + 1) % MAX == cFront) {
+        printf("Circular Queue Overflow!\n");
+        return;
+    }
+    int val;
+    printf("Enter value to enqueue: ");
+    scanf("%d", &val);
+    if (cFront == -1) {
+        cFront = cRear = 0;
+    } else {
+        cRear = (cRear + 1) % MAX;
+    }
+    circularQueue[cRear] = val;
+}
+
+void circularDequeue() {
+    if (cFront == -1) {
+        printf("Circular Queue Underflow!\n");
+        return;
+    }
+    printf("Dequeued: %d\n", circularQueue[cFront]);
+    if (cFront == cRear) {
+        cFront = cRear = -1;
+    } else {
+        cFront = (cFront + 1) % MAX;
+    }
+}
+
+void circularDisplay() {
+    if (cFront == -1) {
+        printf("Circular Queue is empty!\n");
+        return;
+    }
+    printf("Circular Queue elements: ");
+    int i = cFront;
+    do {
+        printf("%d ", circularQueue[i]);
+        i = (i + 1) % MAX;
+    } while (i != (cRear + 1) % MAX);
+    printf("\n");
+}
+
+// Deque Operations
+void insertFront(int value) {
+    if (isFull()) {
+        printf("Deque Overflow!\n");
+        return;
+    }
+    if (front == -1) {
+        front = rear = 0;
+    } else if (front == 0) {
+        front = MAX - 1;
+    } else {
+        front--;
+    }
+    queue[front] = value;
+}
+
+void insertRear(int value) {
+    if (isFull()) {
+        printf("Deque Overflow!\n");
+        return;
+    }
+    if (rear == -1) {
+        front = rear = 0;
+    } else if (rear == MAX - 1) {
+        rear = 0;
+    } else {
+        rear++;
+    }
+    queue[rear] = value;
+}
+
+void deleteFront() {
+    dequeue();
+}
+
+void deleteRear() {
+    if (isEmpty()) {
+        printf("Deque Underflow!\n");
+        return;
+    }
+    printf("Deleted: %d\n", queue[rear]);
+    if (front == rear) {
+        front = rear = -1;
+    } else if (rear == 0) {
+        rear = MAX - 1;
+    } else {
+        rear--;
+    }
+}
+
+void dequeDisplay() {
+    display();
+}
+
+// Priority Queue Operations
+void priorityEnqueue(int value, int priority) {
+    if (isFull()) {
+        printf("Priority Queue Overflow!\n");
+        return;
+    }
+    pRear++;
+    pQueue[pRear].data = value;
+    pQueue[pRear].priority = priority;
+}
+
+void priorityDequeue() {
+    if (pFront == -1) {
+        printf("Priority Queue Underflow!\n");
+        return;
+    }
+    int maxPriority = -1, pos = -1;
+    for (int i = pFront; i <= pRear; i++) {
+        if (pQueue[i].priority > maxPriority) {
+            maxPriority = pQueue[i].priority;
+            pos = i;
+        }
+    }
+    printf("Dequeued: %d (Priority: %d)\n", pQueue[pos].data, maxPriority);
+}
+
+void priorityDisplay() {
+    for (int i = pFront; i <= pRear; i++) {
+        printf("%d(P%d) ", pQueue[i].data, pQueue[i].priority);
+    }
+    printf("\n");
+}
